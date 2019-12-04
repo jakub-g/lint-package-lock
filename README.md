@@ -39,6 +39,20 @@ Enforces the resolves server to use, defaults to `https://registry.npmjs.org`
 }
 ```
 
+When `--autofix` is passed via CLI, the server value can be automatically updated without raising an error.
+
+The server value is only updated when it matches `autoFixFrom` config value, which defaults to `https://registry.npmjs.org`,
+but can be customized.
+
+*Example:*
+
+```json
+{
+  "server": "https://your-private-registry.internal",
+  "autoFixFrom":  "https://some-registry.com"
+}
+```
+
 ## Arguments
 
 ### --file=package-lock.json
@@ -48,3 +62,7 @@ Sets the file to lint, defaults to `package-lock.json` in the current working di
 ### --config=.lint-package-lock
 
 Sets the config file, defaults to `.lint-package-lock` in the current working directory.
+
+### --autofix
+
+Automatically fixes the violations whenever possible.

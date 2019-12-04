@@ -17,21 +17,29 @@ const config = fs.existsSync(configFile)
   ? JSON.parse(fs.readFileSync(configFile).toString())
   : {};
 
+config.autoFix = args.autofix
+console.log(`AutoFix mode: ${config.autoFix}`);
+
 const lock = JSON.parse(fs.readFileSync(file).toString());
 
 let failed = false;
+let autoFixApplied = false;
 
 console.log(`Running package-lock linting on ${file}`);
 
 const enforceResolves = (modules) =>
   Object.entries(modules || {}).forEach(([name, module]) => {
     rules.forEach((rule) => {
-      const error = rule(config, name, module);
+      const { error, updatedValue } = rule(config, name, module);
 
       if (error) {
         console.error(`Error for module ${name}: ${error}`);
-
         failed = true;
+      } else if (updatedValue) {
+        debugger
+        console.log(`Autofixing ${module.resolved}`);
+        module.resolved = updatedValue;
+        autoFixApplied = true;
       }
     });
 
@@ -48,6 +56,9 @@ enforceResolves(lock.optionalDependencies);
 if (failed) {
   console.error('Failed');
   process.exit(1);
+} else if (autoFixApplied) {
+  console.log('Writing updated file...')
+  fs.writeFileSync(file, JSON.stringify(lock, null, 2) + '\n', 'utf8');
 }
 
 console.log('All dependencies passed');
